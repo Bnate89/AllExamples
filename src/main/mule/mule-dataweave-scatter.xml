@@ -36,14 +36,6 @@ output application/json
 				<flow-ref doc:name="Flow Reference" doc:id="0639f47f-4823-409b-964f-f10020f123d7" name="USA-TIME-ZONE"/>
 			</route>
 		</scatter-gather>
-		<ee:transform doc:name="Transform Message" doc:id="51b47a6b-6dd1-4fd6-9b87-a6b39c2f23b6" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-payload]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
 		<choice doc:name="Choice" doc:id="2c5ce49a-37b9-48f3-b4c5-bc80acc50043" >
 			<when expression=" timeZone != null">
 				<logger level="INFO" doc:name="Logger" doc:id="94e2e0f5-ca46-4644-ba76-16b5e3ea0043" />
