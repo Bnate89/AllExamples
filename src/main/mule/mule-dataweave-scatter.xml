@@ -47,7 +47,7 @@ output application/json
 "time zone": "time zone is not null"]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<logger level="INFO" doc:name="Logger" doc:id="399d3928-5099-4e8c-ab8b-0765e609c5a9" />
+				<set-payload value="#[payload]" doc:name="Set Payload" doc:id="10b26852-5553-4bcf-bce3-bddeffc4a0ed" />
 			</when>
 			<otherwise >
 				<set-payload value="#[payload]" doc:name="Set Payload" doc:id="a518c83d-249c-401f-a4b6-7aa2f13d1b24" />
