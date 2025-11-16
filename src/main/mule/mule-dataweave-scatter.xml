@@ -1,69 +1,186 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a054073f-7eb7-45b6-a5f8-45a42d608fa9" >
-		<http:listener-connection host="0.0.0.0" port="8082" />
-	</http:listener-config>
-	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="694579b8-e316-4734-abce-05b5578c421d">
-		<http:request-connection host="timeapi.io/api/Time/current" />
-	</http:request-config>
-	<flow name="mule-dataweave-scatterFlow" doc:id="f14ce31d-2ef7-46fb-b4ce-835270653d72" >
-		<http:listener doc:name="Listener" doc:id="b17ecb1e-5984-4bc2-97d9-564681fca2f3" config-ref="HTTP_Listener_config" path="/scatter"/>
-		
-		
-		<logger level="INFO" doc:name="START LOG" doc:id="abed9c0c-df54-41af-a360-1613c7a051f6" message='#[%dw 2.0 &#10;output application/json indent = false &#10;--- &#10;{ 	&#10;    TimeStamp: now(), &#10;    AppName: app.name, 	&#10;    FlowName: flow.name, 	&#10;    BusinessProcessName:  "Scatter gather example", 	&#10;    Category:  "example", 	&#10;    OriginatingApplication:  "==== START LOG ====", 	&#10;    DesinationApplication:  "Salesforce", 	&#10;    CustomerId: "NA", 	&#10;    txnState:  "RESPONSE SFDC" &#10;}]'/>
-		
-		
-		<ee:transform doc:name="Transform Message" doc:id="9435e29b-b685-4b9d-8241-1619363b56c1" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	"Engineer name": "Bantamelak",
-	"Work time" : "90 hrs",
-	"Success": "True"
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="12b4751d-0c17-4f27-b4e9-16ac2211b307" />
-		<scatter-gather doc:name="Scatter-Gather" doc:id="98f40797-1ff5-4f3e-8723-5b24608d9d4c" >
-			<route >
-				<flow-ref doc:name="Flow Reference" doc:id="0639f47f-4823-409b-964f-f10020f123d7" name="USA-TIME-ZONE"/>
-			</route>
-		</scatter-gather>
-		<choice doc:name="Choice" doc:id="2c5ce49a-37b9-48f3-b4c5-bc80acc50043" >
-			<when expression=" timeZone != null">
-				<logger level="INFO" doc:name="Logger" doc:id="94e2e0f5-ca46-4644-ba76-16b5e3ea0043" />
-				<ee:transform doc:name="Transform Message" doc:id="ec380f27-f61e-4bf5-b2f9-9ca19ccff75b" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-"time zone": "time zone is not null"]]></ee:set-payload>
-					</ee:message>
-				</ee:transform>
-				<set-payload value="#[payload]" doc:name="Set Payload" doc:id="10b26852-5553-4bcf-bce3-bddeffc4a0ed" />
-			</when>
-			<otherwise >
-				<set-payload value="#[payload]" doc:name="Set Payload" doc:id="a518c83d-249c-401f-a4b6-7aa2f13d1b24" />
-			</otherwise>
-		</choice>
-		<logger level="INFO" doc:name="END LOG" doc:id="479dd88f-46d4-4fa9-b627-680bd83468ce" message='#[%dw 2.0 &#10;output application/json indent = false &#10;--- &#10;{ 	&#10;    TimeStamp: now(), &#10;    AppName: app.name, 	&#10;    FlowName: flow.name, 	&#10;    BusinessProcessName:  "Scatter gather example", 	&#10;    Category:  "example", 	&#10;    OriginatingApplication:  "==== END LOG ====", 	&#10;    DesinationApplication:  "Salesforce", 	&#10;    CustomerId: "NA", 	&#10;    txnState:  "RESPONSE SFDC" &#10;}]'/>
-	</flow>
-	<flow name="USA-TIME-ZONE" doc:id="e3f16f34-130f-4ca3-b95f-bc76b42325dc" >
-		<logger level="INFO" doc:name="Logger" doc:id="fcfb5b50-8861-4bcc-9f19-4a2682954950" message="payload"/>
-		<http:request method="GET" doc:name="Request" doc:id="c98c5b92-4251-4573-8adf-137777fdef26" config-ref="HTTP_Request_configuration" path="/zone">
-			<http:uri-params ><![CDATA[#[output application/java
----
-{
-	"timeZone" : "America/New_York"
-}]]]></http:uri-params>
-		</http:request>
-		<logger level="INFO" doc:name="Logger" doc:id="b1ed211e-46ae-48e4-9f9d-208487a00cde" message="payload"/>
-	</flow>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:os="http://www.mulesoft.org/schema/mule/os"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+      http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+      http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+      http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+
+    <!-- =============== GLOBAL CONFIGURATION ===================== -->
+
+    <configuration-properties file="config.properties" doc:name="Configuration properties" />
+
+    <http:listener-config name="HTTP_Listener_Config">
+        <http:listener-connection host="0.0.0.0" port="${http.port}" />
+    </http:listener-config>
+
+    <http:request-config name="TimeAPI_Request_Config">
+        <http:request-connection host="${time.api.host}" protocol="HTTPS" />
+    </http:request-config>
+
+    <os:object-store name="TZ_ObjectStore" persistent="false" />
+
+    <!-- =============== GLOBAL ERROR HANDLING ==================== -->
+
+    <error-handler name="GLOBAL_ERROR_HANDLER">
+
+        <on-error-propagate type="HTTP:BAD_REQUEST" enableNotifications="true" logException="true">
+            <ee:transform>
+                <ee:message>
+                    <ee:set-payload><![CDATA[%dw 2.0
+                    output application/json
+                    ---
+                    {
+                        correlationId: correlationId,
+                        errorType: error.errorType,
+                        message: error.errorMessage,
+                        description: "Invalid request received",
+                        timestamp: now()
+                    }]]></ee:set-payload>
+                </ee:message>
+                <ee:variables>
+                    <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                </ee:variables>
+            </ee:transform>
+        </on-error-propagate>
+
+        <on-error-continue logException="true">
+            <ee:transform>
+                <ee:message>
+                    <ee:set-payload><![CDATA[%dw 2.0
+                    output application/json
+                    ---
+                    {
+                        correlationId: correlationId,
+                        error: "INTERNAL_SERVER_ERROR",
+                        message: error.errorMessage,
+                        timestamp: now()
+                    }]]></ee:set-payload>
+                </ee:message>
+            </ee:transform>
+        </on-error-continue>
+
+    </error-handler>
+
+    <!-- =================== MAIN FLOW ============================ -->
+
+    <flow name="scatter-example-main-flow" >
+        
+        <!-- Assign correlationId -->
+        <set-variable variableName="correlationId" value="#[uuid()]" />
+
+        <http:listener config-ref="HTTP_Listener_Config" path="/scatter" />
+
+        <logger level="INFO" message='#[%dw 2.0
+            output application/json
+            ---
+            {
+                event: "START_FLOW",
+                correlationId: vars.correlationId,
+                flow: flow.name,
+                app: app.name,
+                timestamp: now()
+            }
+        ]'/>
+
+        <ee:transform doc:name="Prepare Engineer Payload">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+                output application/json
+                ---
+                {
+                    engineer: "Bantamelak",
+                    workHours: 90,
+                    status: "SUCCESS",
+                    correlationId: vars.correlationId
+                }]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <!-- ================= Scatter Gather ================= -->
+
+        <scatter-gather doc:name="Parallel Time Lookup">
+            <route>
+                <flow-ref name="usa-time-zone-flow"/>
+            </route>
+            <route>
+                <flow-ref name="backup-region-flow"/>
+            </route>
+        </scatter-gather>
+
+        <!-- ================= Choice Routing ================= -->
+
+        <choice>
+            <when expression="#[payload[0].timeZone != null]">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+                        output application/json
+                        ---
+                        {
+                            result: "Time zone found",
+                            usaTime: payload[0],
+                            backupTime: payload[1],
+                            correlationId: vars.correlationId
+                        }]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+            </when>
+
+            <otherwise>
+                <set-payload value="#[{ message: 'No timezone returned', correlationId: vars.correlationId }]" />
+            </otherwise>
+        </choice>
+
+        <logger level="INFO" message='#[%dw 2.0
+            output application/json
+            ---
+            {
+                event: "END_FLOW",
+                correlationId: vars.correlationId,
+                payload: payload,
+                timestamp: now()
+            }
+        ]'/>
+
+    </flow>
+
+    <!-- ========= USA TIME ZONE FLOW (CACHED) =================== -->
+
+    <flow name="usa-time-zone-flow">
+
+        <os:retrieve doc:name="Check Cache" key="USA_TZ" target="fromCache" />
+
+        <choice>
+            <when expression="#[vars.fromCache != null]">
+                <set-payload value="#[vars.fromCache]" />
+            </when>
+
+            <otherwise>
+                <http:request method="GET" config-ref="TimeAPI_Request_Config" path="/zone">
+                    <http:uri-params><![CDATA[#[{ timeZone: 'America/New_York' }]]]></http:uri-params>
+                </http:request>
+
+                <os:store key="USA_TZ" value="#[payload]" />
+            </otherwise>
+        </choice>
+
+    </flow>
+
+    <!-- ========== BACKUP TIMEZONE FLOW ========================= -->
+
+    <flow name="backup-region-flow">
+
+        <http:request method="GET" config-ref="TimeAPI_Request_Config" path="/zone">
+            <http:uri-params><![CDATA[#[{ timeZone: 'America/Chicago' }]]]></http:uri-params>
+        </http:request>
+
+    </flow>
+
 </mule>
